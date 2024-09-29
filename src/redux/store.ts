@@ -1,9 +1,8 @@
-import { applyMiddleware, createStore } from 'redux';
-import { combineReducers } from 'redux';
+import { applyMiddleware, combineReducers, createStore } from 'redux';
 import { createEpicMiddleware } from 'redux-observable';
-import weatherReducer from './reducers/weatherReducer';
-import { stockReducer } from './reducers/stockReducer';
 import { rootEpic } from './epics/epics';
+import { stockReducer } from './reducers/stockReducer';
+import weatherReducer from './reducers/weatherReducer';
 
 const rootReducer = combineReducers({
   weather: weatherReducer,
@@ -12,6 +11,7 @@ const rootReducer = combineReducers({
 
 const epicMiddleware = createEpicMiddleware();
 
+// @ts-ignore
 export const store = createStore(
   rootReducer,
   applyMiddleware(epicMiddleware)
