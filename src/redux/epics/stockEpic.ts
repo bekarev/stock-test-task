@@ -1,9 +1,14 @@
 import { ofType } from 'redux-observable';
-import { catchError, of } from "rxjs";
+import { catchError, delay, of } from "rxjs";
 import { map, mergeMap, takeUntil } from 'rxjs/operators';
 import { createWebSocketConnection } from "../../services/websocket.ts";
 import { ITradeTdo } from "../../types/trade.ts";
-import { StockAction, stocksWebSocketError, stocksWebSocketPriceUpdate } from "../actions/stockActions.ts";
+import {
+  startStocksWebSocket,
+  StockAction,
+  stocksWebSocketError,
+  stocksWebSocketPriceUpdate
+} from "../actions/stockActions.ts";
 
 const wsConnection = createWebSocketConnection();
 
@@ -23,7 +28,10 @@ export const stockEpic = (action$: any, $state: any) =>
         map((message) => stocksWebSocketPriceUpdate(message as ITradeTdo)),
         takeUntil(action$.pipe(ofType(StockAction.STOP_WEBSOCKET))),
         catchError((error) =>
-          of(stocksWebSocketError(error.message || 'WebSocket Error'))
+          of(
+            stocksWebSocketError(error.message || 'WebSocket Error'),
+            startStocksWebSocket(symbol)
+          ).pipe(delay(3000))
         )
       );
     })
